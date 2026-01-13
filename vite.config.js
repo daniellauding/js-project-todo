@@ -3,5 +3,8 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()]
+  plugins: [react()],
+  server: {
+    host: true, // Listen on all network interfaces (0.0.0.0)
+  }
 })
