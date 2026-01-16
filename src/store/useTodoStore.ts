@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { Task } from "../types/Todo";
 
 interface TodoState {
@@ -11,43 +12,50 @@ interface TodoState {
   updateTaskText: (id: string, text: string) => void;
 }
 
-const useTodoStore = create<TodoState>((set) => ({
-  tasks: [],
+const useTodoStore = create<TodoState>()(
+  persist(
+    (set) => ({
+      tasks: [],
 
-  addTask: (text: string) => set((state) => ({
-    tasks: [
-      ...state.tasks,
-      { id: Date.now().toString(), text, completed: false, isEditing: false } as Task,
-    ],
-  })),
+      addTask: (text: string) => set((state) => ({
+        tasks: [
+          ...state.tasks,
+          { id: Date.now().toString(), text, completed: false, isEditing: false } as Task,
+        ],
+      })),
 
-  removeTask: (id: string) => set((state) => ({
-    tasks: state.tasks.filter(task => task.id !== id)
-  })),
+      removeTask: (id: string) => set((state) => ({
+        tasks: state.tasks.filter(task => task.id !== id)
+      })),
 
-  toggleTask: (id: string) => set((state) => ({
-    tasks: state.tasks.map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    )
-  })),
+      toggleTask: (id: string) => set((state) => ({
+        tasks: state.tasks.map((task) =>
+          task.id === id ? { ...task, completed: !task.completed } : task
+        )
+      })),
 
-  editTask: (id: string) => set((state) => ({
-    tasks: state.tasks.map((task) =>
-      task.id === id ? { ...task, isEditing: true } : task
-    )
-  })),
+      editTask: (id: string) => set((state) => ({
+        tasks: state.tasks.map((task) =>
+          task.id === id ? { ...task, isEditing: true } : task
+        )
+      })),
 
-  cancelEdit: (id: string) => set((state) => ({
-    tasks: state.tasks.map((task) =>
-      task.id === id ? { ...task, isEditing: false } : task
-    )
-  })),
+      cancelEdit: (id: string) => set((state) => ({
+        tasks: state.tasks.map((task) =>
+          task.id === id ? { ...task, isEditing: false } : task
+        )
+      })),
 
-  updateTaskText: (id: string, text: string) => set((state) => ({
-    tasks: state.tasks.map((task) =>
-      task.id === id ? { ...task, text, isEditing: false } : task
-    )
-  })),
-}));
+      updateTaskText: (id: string, text: string) => set((state) => ({
+        tasks: state.tasks.map((task) =>
+          task.id === id ? { ...task, text, isEditing: false } : task
+        )
+      })),
+    }),
+    {
+      name: 'todo-storage',
+    }
+  )
+);
 
 export default useTodoStore;

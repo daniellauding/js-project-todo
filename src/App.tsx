@@ -1,15 +1,16 @@
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
+import TodoHeader from "./components/TodoHeader";
+import { Main } from './components/ui';
 
 export const App = () => {
-
   return (
-    <div>
-      <h1>Todo App by Daniel</h1>
-      <TodoForm />
-
-      <TodoList />
-
-    </div>
+    <>
+      <Main>
+        <TodoHeader />
+        <TodoList />
+        <TodoForm />
+      </Main>
+    </>
   );
 };
