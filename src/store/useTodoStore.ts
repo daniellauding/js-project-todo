@@ -20,7 +20,13 @@ const useTodoStore = create<TodoState>()(
       addTask: (text: string) => set((state) => ({
         tasks: [
           ...state.tasks,
-          { id: Date.now().toString(), text, completed: false, isEditing: false } as Task,
+          {
+            id: Date.now().toString(),
+            text,
+            completed: false,
+            isEditing: false,
+            createdAt: new Date().toISOString(),
+          } as Task,
         ],
       })),
 
@@ -48,7 +54,9 @@ const useTodoStore = create<TodoState>()(
 
       updateTaskText: (id: string, text: string) => set((state) => ({
         tasks: state.tasks.map((task) =>
-          task.id === id ? { ...task, text, isEditing: false } : task
+          task.id === id
+            ? { ...task, text, isEditing: false, updatedAt: new Date().toISOString() }
+            : task
         )
       })),
     }),

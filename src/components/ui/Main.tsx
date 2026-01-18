@@ -7,4 +7,8 @@ export const Main = styled.main`
   justify-content: center;
   align-items: center;
   width: 100%;
+
+  &:focus {
+    outline: none;
+  }
 `;

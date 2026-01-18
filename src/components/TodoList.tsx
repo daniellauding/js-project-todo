@@ -8,6 +8,18 @@ import type { Task } from '../types/Todo';
 const TaskText = styled.span<{ $completed: boolean }>`
   text-decoration: ${props => props.$completed ? "line-through" : "none"};
   opacity: ${props => props.$completed ? 0.5 : 1};
+  flex: 1;
+`;
+
+const TaskMeta = styled.span`
+  font-size: 0.6rem;
+  opacity: 0.4;
+  white-space: nowrap;
+`;
+
+const Wrap = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 export const ThumbIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -17,6 +29,7 @@ export const ThumbIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
     {...props}
   >
     <path
@@ -58,6 +71,11 @@ const Checkbox = styled.button<{ $checked: boolean }>`
   &:hover {
     border-color: var(--btn-bg);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--btn-bg);
+    outline-offset: 2px;
+  }
 `;
 
 const CheckboxContainer = styled.div`
@@ -65,32 +83,57 @@ const CheckboxContainer = styled.div`
   gap: 0.5rem;
   width: 100%;
   cursor: pointer;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    width: 100%;
-    padding: 16px;
-  }
+  padding: 16px;
 `;
 
 const Actions = styled.div`
   margin-left: auto;
   display: flex;
   gap: 0.5rem;
-  display: none;
   position: absolute;
   right: 16px;
   top: 0;
   height: 100%;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
 
-  ${ListItem}:hover & {
-    display: flex;
+  ${ListItem}:hover &,
+  ${ListItem}:focus-within & {
+    opacity: 1;
+  }
+
+  button:focus-visible {
+    opacity: 1;
   }
 `;
+
+const EmptyState = styled.div`
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+`;
+
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'now';
+  if (diffMins < 60) return `${diffMins}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays < 7) return `${diffDays}d`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
 
 const TodoItem = ({ task }: { task: Task }) => {
   const { toggleTask, removeTask, updateTaskText } = useTodoStore();
@@ -110,55 +153,91 @@ const TodoItem = ({ task }: { task: Task }) => {
     setIsEditing(false);
   };
 
-  const handleRowClick = () => {
+  const handleToggle = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     if (!isEditing) {
       toggleTask(task.id);
     }
   };
 
+  const displayDate = task.updatedAt ? formatDate(task.updatedAt) : formatDate(task.createdAt);
+  const dateLabel = task.updatedAt ? 'Updated' : 'Added';
+
   return (
     <ListItem>
-      <CheckboxContainer onClick={handleRowClick}>
-        <Checkbox $checked={task.completed}>
-          <Check />
+      <CheckboxContainer>
+        <Checkbox
+          $checked={task.completed}
+          onClick={handleToggle}
+          role="checkbox"
+          aria-checked={task.completed}
+          aria-label={`Mark "${task.text}" as ${task.completed ? 'incomplete' : 'complete'}`}
+        >
+          <Check aria-hidden="true" />
         </Checkbox>
-        <label>
-          {isEditing ? (
-            <Input
-              $variant="ghost"
-              type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Escape") handleCancel();
-                if (e.key === "Enter") handleSave();
-              }}
-            />
-          ) : (
+        {isEditing ? (
+          <Input
+            $variant="ghost"
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            autoFocus
+            aria-label="Edit task text"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") handleCancel();
+              if (e.key === "Enter") handleSave();
+            }}
+          />
+        ) : (
+          <Wrap>
             <TaskText $completed={task.completed}>
               {task.text}
             </TaskText>
-          )}
-        </label>
+            {displayDate && (
+              <TaskMeta title={`${dateLabel}: ${new Date(task.updatedAt || task.createdAt).toLocaleString()}`}>
+                {displayDate}
+              </TaskMeta>
+            )}
+          </Wrap>
+        )}
       </CheckboxContainer>
       <Actions>
         {!isEditing ? (
           <>
-            <Button $variant="ghost" $size="icon" onClick={() => setIsEditing(true)}>
-              <Edit01 />
+            <Button
+              $variant="ghost"
+              $size="icon"
+              onClick={() => setIsEditing(true)}
+              aria-label={`Edit "${task.text}"`}
+            >
+              <Edit01 aria-hidden="true" />
             </Button>
-            <Button $variant="ghost" $size="icon" onClick={() => removeTask(task.id)}>
-              <Trash01 />
+            <Button
+              $variant="ghost"
+              $size="icon"
+              onClick={() => removeTask(task.id)}
+              aria-label={`Delete "${task.text}"`}
+            >
+              <Trash01 aria-hidden="true" />
             </Button>
           </>
         ) : (
           <>
-            <Button $variant="ghost" $size="icon" onClick={handleSave}>
-              <Check />
+            <Button
+              $variant="ghost"
+              $size="icon"
+              onClick={handleSave}
+              aria-label="Save changes"
+            >
+              <Check aria-hidden="true" />
             </Button>
-            <Button $variant="ghost" $size="icon" onClick={handleCancel}>
-              <XClose />
+            <Button
+              $variant="ghost"
+              $size="icon"
+              onClick={handleCancel}
+              aria-label="Cancel editing"
+            >
+              <XClose aria-hidden="true" />
             </Button>
           </>
         )}
@@ -171,15 +250,16 @@ const TodoList = () => {
   const { tasks } = useTodoStore();
 
   return (
-    <Section aria-labelledby="todo-list">
-      <List>
+    <Section aria-labelledby="todo-list-heading">
+      <h2 id="todo-list-heading" className="visually-hidden">Task list</h2>
+      <List role="list" aria-label="Todo tasks">
         {tasks.length > 0 ? (
           tasks.map((task) => <TodoItem key={task.id} task={task} />)
         ) : (
-          <p style={{ margin: 'auto auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-            <ThumbIcon style={{ width: '48px', height: '48px', marginBottom: '16px' }} />
-            Add a task to get busy!
-          </p>
+          <EmptyState role="status" aria-live="polite">
+            <ThumbIcon style={{ width: '48px', height: '48px' }} />
+            <p>Add a task to get busy!</p>
+          </EmptyState>
         )}
       </List>
     </Section>

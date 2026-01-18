@@ -14,13 +14,23 @@ const Header = styled.header`
   backdrop-filter: blur(12px);
 `;
 
+const TaskCount = styled.span`
+  font-size: 0.9rem;
+`;
+
 const TodoHeader = () => {
   const { tasks } = useTodoStore();
+  const completedCount = tasks.filter(t => t.completed).length;
+  const totalCount = tasks.length;
 
   return (
-    <Header>
-
-      {tasks.length >= 1 && <>{tasks.length} tasks total</>}
+    <Header role="banner">
+      <h1 className="visually-hidden">Todo Application</h1>
+      {totalCount >= 1 && (
+        <TaskCount aria-live="polite" aria-atomic="true">
+          {completedCount} of {totalCount} tasks completed
+        </TaskCount>
+      )}
     </Header>
   );
 }

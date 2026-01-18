@@ -68,6 +68,11 @@ export const Button = styled.button<ButtonProps>`
     opacity: 0.8;
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--btn-bg);
+    outline-offset: 2px;
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;

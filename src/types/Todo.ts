@@ -2,6 +2,7 @@ export interface Task {
   id: string;
   text: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt: string;
+  updatedAt?: string;
   isEditing?: boolean;
 }

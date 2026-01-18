@@ -32,24 +32,38 @@ const TodoForm = ({ onClose }: TodoFormProps) => {
 
   return (
     <>
-      <Section $variant="form" aria-labelledby="todo-heading">
+      <Section $variant="form" aria-label="Add new task">
         {showForm ? (
-          <StyledForm onSubmit={handleSubmit}>
+          <StyledForm onSubmit={handleSubmit} id="todo-form">
+            <label htmlFor="new-task-input" className="visually-hidden">
+              New task
+            </label>
             <Input
+              id="new-task-input"
               type="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Add a new task"
               autoFocus
+              aria-describedby="task-hint"
             />
-            <Button type="submit" disabled={text.length === 0}>
-              <Check />
+            <span id="task-hint" className="visually-hidden">
+              Press Enter to add the task
+            </span>
+            <Button type="submit" disabled={text.length === 0} aria-label="Add task">
+              <Check aria-hidden="true" />
             </Button>
           </StyledForm>
         ) : (
           <Fab>
-            <Button $variant="add" onClick={() => setShowForm(true)} aria-expanded={showForm} aria-controls="todo-form">
-              <Plus />
+            <Button
+              $variant="add"
+              onClick={() => setShowForm(true)}
+              aria-expanded={showForm}
+              aria-controls="todo-form"
+              aria-label="Add new task"
+            >
+              <Plus aria-hidden="true" />
             </Button>
           </Fab>
         )}
