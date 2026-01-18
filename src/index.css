@@ -3,6 +3,7 @@
 
   --bg-color: #ffffff;
   --text-color: #000000;
+  --text-muted: #595959; /* 7:1 contrast on white */
   --btn-bg: #000000;
   --btn-text: #ffffff;
   color-scheme: light dark;
@@ -12,6 +13,7 @@
   :root {
     --bg-color: #121212;
     --text-color: #ffffff;
+    --text-muted: #a3a3a3; /* 7.4:1 contrast on #121212 */
     --btn-bg: #ffffff;
     --btn-text: #000000;
   }

@@ -7,13 +7,13 @@ import type { Task } from '../types/Todo';
 
 const TaskText = styled.span<{ $completed: boolean }>`
   text-decoration: ${props => props.$completed ? "line-through" : "none"};
-  opacity: ${props => props.$completed ? 0.5 : 1};
+  color: ${props => props.$completed ? 'var(--text-muted)' : 'var(--text-color)'};
   flex: 1;
 `;
 
 const TaskMeta = styled.span`
-  font-size: 0.6rem;
-  opacity: 0.4;
+  font-size: 0.65rem;
+  color: var(--text-muted);
   white-space: nowrap;
 `;
 
